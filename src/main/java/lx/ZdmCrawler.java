@@ -70,6 +70,10 @@ public class ZdmCrawler {
         HashSet<String> blackWords = Utils.readFile("./black_words.txt");
         blackWords.removeIf(StringUtils::isBlank);
 
+        // 白词
+        HashSet<String> whiteWords = Utils.readFile("./white_words.txt");
+        whiteWords.removeIf(StringUtils::isBlank);
+
         //已推送的优惠信息id
         Set<String> pushedIds;
         try {
@@ -85,7 +89,8 @@ public class ZdmCrawler {
         }
 
         zdms = new HashSet<>(StreamUtils.filter(zdms, z ->
-                StringUtils.isBlank(StreamUtils.findFirst(blackWords, w -> z.getTitle().contains(w))) //黑词过滤
+                StringUtils.isNotBlank(StreamUtils.findFirst(whiteWords, w -> z.getTitle().contains(w))) //白词过滤
+                        && StringUtils.isBlank(StreamUtils.findFirst(blackWords, w -> z.getTitle().contains(w))) //黑词过滤
                         && Integer.parseInt(z.getVoted()) > Integer.parseInt(System.getenv("minVoted")) //值的数量
                         && Integer.parseInt(z.getComments()) > Integer.parseInt(System.getenv("minComments")) //评论的数量
                         && !z.getPrice().contains("前") //不是前xxx名的耍猴抢购
